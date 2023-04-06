@@ -1,10 +1,9 @@
 import numpy as np
 import mosek
 import cvxpy as cp
-import matplotlib.pyplot as plt
 import control
-import random as rm
-
+seed = 88
+np.random.seed(seed)
 
 def support(Z, d, G, h_lb, h_ub , W, lb, ub):
     # Given a set of random vectors concatenated into Z, compute the support 
@@ -77,18 +76,3 @@ def consistent(A, B, x, u, nx, nu, W, lb, ub ):
     y = np.hstack((A.flatten(), B.flatten())).reshape((nx*(nx+nu),1))
     consist = (G@y <= h_ub).all() and (G@y >= h_lb).all()
     return consist, G, h_lb, h_ub 
-  
-  
-
-def still_consistent(theta, nx, n_phi, sindyState_list, state_list, W):
-    eps = 1e-6
-    consistency = False
-    A = theta.reshape((nx, n_phi))
-    violation = 0
-    for (next_x, phi) in zip(state_list[1:], sindyState_list):
-        violation += np.sum( ~(next_x.reshape((nx,1)) - A @ phi.reshape((n_phi,1)) <= (W+eps) *np.ones((nx,1)))) + np.sum( ~(next_x.reshape((nx,1)) - A @ phi.reshape((n_phi,1)) >= -(W+eps)*np.ones((nx,1))))
-        
-    if violation == 0:
-        consistency = True
-    
-    return consistency
